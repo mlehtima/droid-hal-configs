@@ -219,7 +219,7 @@ delete_files() {
   if [ -e $deletelist ]; then
     egrep -v '^#' $deletelist | (
       while read file; do
-	[ "x$dorm" == "x1" ] && rm $RPM_BUILD_ROOT/$file
+	[ "x$dorm" == "x1" ] && find $RPM_BUILD_ROOT -regextype posix-extended -regex "$RPM_BUILD_ROOT$file" -print0 | xargs -0 rm
 	grep -vE "$file" $files > tmp/$$.files
 	mv tmp/$$.files $files
       done)
@@ -244,6 +244,15 @@ config_files() {
 copy_files_from %{dcd_path}/%{dcd_sparse}
 delete_files tmp/droid-config.files delete_file.list 1
 copy_files_from %{dcd_path}/sparse
+# Exclude files defined in spec.
+%if 0%{?exclude_files:1}
+cat <<EOF >> tmp/exclude_file.list
+%{exclude_files}
+EOF
+# Remove empty lines from created file
+sed -i '/^\s*$/d' tmp/exclude_file.list
+delete_files tmp/droid-config.files tmp/exclude_file.list 1
+%endif
 # This add %config to %files section for files from rpm-config-files.files
 config_files tmp/droid-config.files rpm-config-files.files
 
