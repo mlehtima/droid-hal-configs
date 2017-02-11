@@ -256,6 +256,37 @@ Obsoletes: bluez-configs-mer
 
 %description bluez4
 %{summary}.
+
+
+%package bluez5
+Summary: %{rpm_device} packages for BlueZ 5
+Conflicts: droid-config-%{rpm_device}-bluez4
+Requires: %{name} = %{version}-%{release}
+Requires: %{name} = %{version}
+Provides: %{rpm_device}-bluez-configs
+
+Requires: bluez5
+Conflicts: bluez
+
+Requires: bluez5-libs
+Conflicts: bluez-libs
+
+Requires: bluez5-obexd
+Conflicts: obexd
+
+Conflicts: obexd-server
+# no obexd-server equivalent in BlueZ 5, so no conflict
+
+Requires: kf5bluezqt-bluez5
+Conflicts: kf5bluezqt-bluez4
+
+Provides: bluez5-configs
+Conflicts: bluez-configs
+Obsoletes: bluez-configs-sailfish
+Obsoletes: bluez-configs-mer
+
+%description bluez5
+%{summary}.
 %endif
 
 ################################################################
@@ -368,6 +399,8 @@ sed --in-place -e '/flash-partition/d' -e '/platform-updates/d' tmp/droid-config
 %if 0%{?have_bluetooth:1}
 grep bluez4 tmp/droid-config.files > tmp/bluez4.files || true
 sed --in-place '/bluez4/d' tmp/droid-config.files
+grep bluez5 tmp/droid-config.files > tmp/bluez5.files || true
+sed --in-place '/bluez5/d' tmp/droid-config.files
 %endif
 
 %if 0%{?out_of_image_files:1}
@@ -568,6 +601,9 @@ touch %{_datadir}/ssu/features.d/*
 
 %if 0%{?have_bluetooth:1}
 %files bluez4 -f tmp/bluez4.files
+%defattr(644,root,root,-)
+
+%files bluez5 -f tmp/bluez5.files
 %defattr(644,root,root,-)
 %endif
 
